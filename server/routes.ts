@@ -22,6 +22,22 @@ async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Development route to test with sample data (remove in production)
+  app.get('/api/auth/test-user', async (req, res) => {
+    try {
+      if (process.env.NODE_ENV !== 'development') {
+        return res.status(404).json({ message: "Not found" });
+      }
+      
+      const user = await storage.getUser('user1');
+      const profile = await storage.getProfile('user1');
+      res.json({ ...user, profile });
+    } catch (error) {
+      console.error("Error fetching test user:", error);
+      res.status(500).json({ message: "Failed to fetch test user" });
+    }
+  });
+
   // Profile routes
   app.post('/api/profiles', isAuthenticated, async (req: any, res) => {
     try {
@@ -50,6 +66,21 @@ async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching profiles:", error);
       res.status(500).json({ message: "Failed to fetch profiles" });
+    }
+  });
+
+  // Development route to test profiles (remove in production)
+  app.get('/api/test-profiles', async (req, res) => {
+    try {
+      if (process.env.NODE_ENV !== 'development') {
+        return res.status(404).json({ message: "Not found" });
+      }
+      
+      const profiles = await storage.getProfiles('user1');
+      res.json(profiles);
+    } catch (error) {
+      console.error("Error fetching test profiles:", error);
+      res.status(500).json({ message: "Failed to fetch test profiles" });
     }
   });
 

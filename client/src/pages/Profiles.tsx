@@ -36,7 +36,7 @@ export default function Profiles() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: profiles = [], isLoading: profilesLoading } = useQuery({
+  const { data: profiles = [], isLoading: profilesLoading } = useQuery<(Profile & { user: User })[]>({
     queryKey: ["/api/profiles"],
     enabled: isAuthenticated,
   });

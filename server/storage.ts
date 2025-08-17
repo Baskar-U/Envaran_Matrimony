@@ -90,7 +90,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProfiles(excludeUserId?: string, limit = 50): Promise<(Profile & { user: User })[]> {
-    let query = db
+    const baseQuery = db
       .select({
         id: profiles.id,
         userId: profiles.userId,
@@ -111,10 +111,10 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
 
     if (excludeUserId) {
-      query = query.where(ne(profiles.userId, excludeUserId));
+      return await baseQuery.where(ne(profiles.userId, excludeUserId));
     }
 
-    return await query;
+    return await baseQuery;
   }
 
   // Like operations
@@ -178,13 +178,13 @@ export class DatabaseStorage implements IStorage {
 
   // Event vendor operations
   async getEventVendors(category?: string): Promise<EventVendor[]> {
-    let query = db.select().from(eventVendors);
+    const baseQuery = db.select().from(eventVendors);
     
     if (category) {
-      query = query.where(eq(eventVendors.category, category));
+      return await baseQuery.where(eq(eventVendors.category, category));
     }
     
-    return await query;
+    return await baseQuery;
   }
 }
 
