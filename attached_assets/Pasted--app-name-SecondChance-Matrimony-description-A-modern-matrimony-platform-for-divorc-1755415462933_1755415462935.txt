@@ -1,0 +1,105 @@
+{
+  "app_name": "SecondChance Matrimony",
+  "description": "A modern matrimony platform for divorced individuals with integrated event management slider at the bottom. Focus on trust, privacy, and celebration.",
+  "pages": {
+    "landing_page": {
+      "popup": {
+        "trigger": "5 seconds after page load",
+        "content": "Registration form with fields: Full Name, Age, Gender, Email, Password, Location",
+        "animation": "fade-up"
+      },
+      "aos_effect": "fade-in"
+    },
+    "profiles_page": {
+      "dummy_data": [
+        {
+          "id": "101",
+          "name": "Priya S",
+          "age": 32,
+          "location": "Chennai",
+          "profession": "Software Engineer",
+          "verified": true,
+          "profile_image": "profile1.jpg"
+        },
+        {
+          "id": "102",
+          "name": "Arun K",
+          "age": 36,
+          "location": "Bangalore",
+          "profession": "Doctor",
+          "verified": true,
+          "profile_image": "profile2.jpg"
+        },
+        {
+          "id": "103",
+          "name": "Meena R",
+          "age": 30,
+          "location": "Coimbatore",
+          "profession": "Teacher",
+          "verified": false,
+          "profile_image": "profile3.jpg"
+        }
+      ],
+      "features": [
+        "Show nearby profiles based on location",
+        "Multiple filters (age, city, education, profession, kids preference, verified)",
+        "Profile details page with full access",
+        "Option to edit own profile anytime"
+      ],
+      "aos_effect": "zoom-in"
+    },
+    "interactions": {
+      "like_system": {
+        "action": "User likes a profile",
+        "notification": "Opposite person receives Like Notification",
+        "mutual_like": "If opposite person likes back → Chat unlocked"
+      },
+      "chat_system": {
+        "text_chat": "Secure private chat window",
+        "audio_call": "One-to-one secure audio call",
+        "video_call": "One-to-one secure video call"
+      },
+      "aos_effect": "flip-left"
+    },
+    "event_slider": {
+      "position": "bottom of every page",
+      "content": "Horizontal slider showcasing Event Management services",
+      "slides": [
+        {
+          "title": "Wedding Halls",
+          "image": "hall.jpg",
+          "description": "Book verified wedding halls near you"
+        },
+        {
+          "title": "Catering Services",
+          "image": "catering.jpg",
+          "description": "Top caterers with customizable menus"
+        },
+        {
+          "title": "Photography",
+          "image": "photography.jpg",
+          "description": "Capture memories with premium photographers"
+        },
+        {
+          "title": "Makeup & Mehendi",
+          "image": "makeup.jpg",
+          "description": "Exclusive bridal and groom packages"
+        }
+      ],
+      "access": "User can directly connect with event vendors",
+      "aos_effect": "fade-right"
+    }
+  },
+  "ui_ux": {
+    "theme": "Premium, modern, dignified",
+    "colors": ["royal blue", "gold", "white", "soft pink"],
+    "fonts": ["Poppins", "Montserrat"],
+    "layout": "Card-based profiles, rounded corners, grid layout",
+    "animations": {
+      "registration_popup": "fade-up",
+      "profiles_list": "zoom-in",
+      "chat_window": "flip-left",
+      "event_slider": "fade-right with stagger"
+    }
+  }
+}
