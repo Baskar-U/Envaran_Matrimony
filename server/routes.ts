@@ -84,6 +84,21 @@ async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Registration endpoint
+  app.post('/api/register', async (req, res) => {
+    try {
+      const userData = req.body;
+      // Hash password before storing (simplified for demo)
+      userData.password = `hashed_${userData.password}`;
+      
+      const user = await storage.createUser(userData);
+      res.json({ message: "User registered successfully", userId: user.id });
+    } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(400).json({ message: "Failed to register user" });
+    }
+  });
+
   // Like routes
   app.post('/api/likes', isAuthenticated, async (req: any, res) => {
     try {
