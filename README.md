@@ -10,7 +10,7 @@
 
 **A modern, secure, and inclusive matrimony platform designed specifically for individuals seeking second chances in life.**
 
-[Live Demo](https://secondchancematrimony.com) • [Documentation](https://docs.secondchancematrimony.com) • [Report Bug](https://github.com/yourusername/SecondChanceMatrimony/issues)
+[Live Demo](https://envaranmatrimony.com) • [Report Bug](https://github.com/Baskar-U/Envaran_Matrimony/issues)
 
 </div>
 
