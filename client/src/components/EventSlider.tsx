@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -70,11 +70,28 @@ export default function EventSlider() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-poppins font-bold mb-4" data-testid="text-event-title">
-            Complete <span className="text-gold">Wedding Services</span>
+            <span className="text-gold">Planora</span> Event Management
           </h2>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto" data-testid="text-event-description">
-            From finding love to celebrating it - we handle every detail of your special day
+          <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8" data-testid="text-event-description">
+            Your trusted partner for creating unforgettable wedding celebrations. From intimate ceremonies to grand receptions, 
+            we connect you with the best vendors and venues across India.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex items-center space-x-4 text-blue-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <span className="text-sm">500+ Verified Vendors</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <span className="text-sm">50+ Cities</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <span className="text-sm">1000+ Happy Couples</span>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="relative">
@@ -146,6 +163,22 @@ export default function EventSlider() {
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
+          </div>
+
+          {/* Visit Planora Website Button */}
+          <div className="text-center mt-12">
+            <Button 
+              size="lg" 
+              className="bg-gold text-royal-blue hover:bg-yellow-400 transition-all duration-300 transform hover:scale-105 px-8 py-4 text-lg font-semibold"
+              onClick={() => window.open('https://planora-ce3a5.web.app/', '_blank')}
+              data-testid="button-visit-planora"
+            >
+              <Calendar className="mr-2 h-5 w-5" />
+              Visit Planora Website
+            </Button>
+            <p className="text-blue-100 text-sm mt-3">
+              Explore our complete wedding planning platform
+            </p>
           </div>
         </div>
       </div>

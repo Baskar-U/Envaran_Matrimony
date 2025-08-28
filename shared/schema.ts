@@ -52,8 +52,21 @@ export const profiles = pgTable("profiles", {
   gender: varchar("gender").notNull(),
   location: varchar("location").notNull(),
   profession: varchar("profession").notNull(),
+  professionOther: varchar("profession_other"),
   bio: text("bio"),
   education: varchar("education"),
+  educationOther: varchar("education_other"),
+  educationSpecification: varchar("education_specification"),
+  educationSpecificationOther: varchar("education_specification_other"),
+  relationshipStatus: varchar("relationship_status"), // never_married, divorced, widowed, separated
+  religion: varchar("religion"),
+  caste: varchar("caste"),
+  subCaste: varchar("sub_caste"),
+  motherTongue: varchar("mother_tongue"),
+  smoking: varchar("smoking"), // yes, no, occasionally
+  drinking: varchar("drinking"), // yes, no, occasionally
+  lifestyle: varchar("lifestyle"), // vegetarian, non-vegetarian, vegan, eggetarian
+  hobbies: text("hobbies"), // JSON array of hobbies
   verified: boolean("verified").default(false),
   kidsPreference: varchar("kids_preference"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -171,6 +184,127 @@ export const SUB_CASTES = [
   "Kannada", "Malayalam", "Marathi", "Other"
 ] as const;
 
+export const MOTHER_TONGUES = [
+  "Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Kannada", "Malayalam", 
+  "Punjabi", "Odia", "Assamese", "Sanskrit", "Urdu", "Sindhi", "Kashmiri", "Konkani", "Manipuri", 
+  "Nepali", "Bodo", "Santhali", "Dogri", "Maithili", "Other"
+] as const;
+
+export const SMOKING_OPTIONS = [
+  "Yes", "No", "Occasionally", "Quit"
+] as const;
+
+export const DRINKING_OPTIONS = [
+  "Yes", "No", "Occasionally", "Quit"
+] as const;
+
+export const LIFESTYLE_OPTIONS = [
+  "Vegetarian", "Non-Vegetarian", "Vegan", "Eggetarian", "Jain"
+] as const;
+
+export const HOBBIES_OPTIONS = [
+  "Reading", "Writing", "Traveling", "Cooking", "Gardening", "Photography", "Painting", "Drawing",
+  "Music", "Dancing", "Singing", "Sports", "Gym", "Yoga", "Meditation", "Swimming", "Cycling",
+  "Hiking", "Trekking", "Fishing", "Gaming", "Watching Movies", "Listening to Music", "Shopping",
+  "Fashion", "Beauty", "Technology", "Coding", "Blogging", "Social Media", "Volunteering",
+  "Teaching", "Learning New Languages", "Playing Instruments", "Chess", "Puzzles", "Collecting",
+  "DIY Projects", "Interior Design", "Fashion Design", "Other"
+] as const;
+
+// Religion-specific caste and sub-caste mappings
+export const RELIGION_CASTE_MAPPING = {
+  "Hindu": [
+    "Brahmin", "Kshatriya", "Vaishya", "Shudra", "SC", "ST", "OBC", "General", "No Caste", "Other"
+  ],
+  "Islam": [
+    "Sunni", "Shia", "Ahmadiyya", "Sufi", "Other"
+  ],
+  "Christian": [
+    "Catholic", "Protestant", "Orthodox", "Anglican", "Baptist", "Methodist", "Lutheran", "Other"
+  ],
+  "Sikh": [
+    "Jat", "Khatri", "Ramgharia", "Ahluwalia", "Other"
+  ],
+  "Buddhist": [
+    "Mahayana", "Theravada", "Vajrayana", "Zen", "Other"
+  ],
+  "Jain": [
+    "Digambara", "Shwetambara", "Other"
+  ],
+  "Parsi": [
+    "Zoroastrian", "Other"
+  ],
+  "Jewish": [
+    "Ashkenazi", "Sephardi", "Mizrahi", "Other"
+  ],
+  "Other": [
+    "Other"
+  ]
+} as const;
+
+export const CASTE_SUBCASTE_MAPPING = {
+  "Brahmin": [
+    "Iyer", "Iyengar", "Sharma", "Bhatt", "Pandit", "Mishra", "Tiwari", "Trivedi", "Chaturvedi", "Vajpayee", "Other"
+  ],
+  "Kshatriya": [
+    "Rajput", "Thakur", "Singh", "Chauhan", "Tomar", "Pratihar", "Rathore", "Other"
+  ],
+  "Vaishya": [
+    "Agarwal", "Bansal", "Goyal", "Gupta", "Jain", "Marwari", "Oswal", "Other"
+  ],
+  "Shudra": [
+    "Yadav", "Kurmi", "Lodhi", "Jat", "Other"
+  ],
+  "SC": [
+    "Chamar", "Mahar", "Mang", "Bhanghi", "Other"
+  ],
+  "ST": [
+    "Gond", "Bhil", "Santal", "Munda", "Other"
+  ],
+  "OBC": [
+    "Kurmi", "Yadav", "Lodhi", "Gujjar", "Other"
+  ],
+  "General": [
+    "General", "Other"
+  ],
+  "No Caste": [
+    "No Caste", "Other"
+  ],
+  "Other": [
+    "Other"
+  ]
+} as const;
+
+export const RELATIONSHIP_STATUSES = [
+  "never_married", "divorced", "widowed", "separated"
+] as const;
+
+export const EDUCATION_LEVELS = [
+  "High School", "Diploma", "Bachelor's Degree", "Master's Degree", "PhD", "Professional Degree", "Other"
+] as const;
+
+export const PROFESSIONS = [
+  "Software Engineer", "Doctor", "Teacher", "Business Owner", "Manager", "Accountant", "Lawyer", "Designer", "Marketing", "Sales", "Healthcare", "Education", "Finance", "Technology", "Other"
+] as const;
+
+export const EDUCATION_SPECIFICATIONS = {
+  "Bachelor's Degree": [
+    "Computer Science", "Information Technology", "Electronics", "Mechanical Engineering", "Civil Engineering", "Electrical Engineering", "Chemical Engineering", "Biotechnology", "Business Administration", "Commerce", "Economics", "Finance", "Marketing", "Human Resources", "Psychology", "Sociology", "English Literature", "History", "Political Science", "Mathematics", "Physics", "Chemistry", "Biology", "Medicine", "Nursing", "Pharmacy", "Law", "Architecture", "Design", "Arts", "Music", "Other"
+  ],
+  "Master's Degree": [
+    "Computer Science", "Information Technology", "Data Science", "Artificial Intelligence", "Machine Learning", "Software Engineering", "Cybersecurity", "Business Administration (MBA)", "Finance", "Marketing", "Human Resources", "Economics", "Psychology", "Sociology", "Education", "Public Health", "Law", "Architecture", "Design", "Arts", "Other"
+  ],
+  "PhD": [
+    "Computer Science", "Information Technology", "Data Science", "Artificial Intelligence", "Machine Learning", "Business Administration", "Finance", "Economics", "Psychology", "Sociology", "Education", "Public Health", "Law", "Architecture", "Design", "Arts", "Other"
+  ],
+  "Professional Degree": [
+    "Medicine (MBBS)", "Law (LLB)", "Architecture (B.Arch)", "Pharmacy (B.Pharm)", "Nursing (B.Sc Nursing)", "Dental Surgery (BDS)", "Veterinary Science (BVSc)", "Other"
+  ],
+  "Diploma": [
+    "Computer Science", "Information Technology", "Electronics", "Mechanical", "Civil", "Electrical", "Chemical", "Business Administration", "Commerce", "Design", "Arts", "Other"
+  ]
+} as const;
+
 // Restricted name patterns (should not be allowed)
 export const RESTRICTED_NAME_PATTERNS = [
   "admin", "test", "demo", "null", "undefined", "admin123", "user123", "temp", "fake",
@@ -238,10 +372,29 @@ export const userRegistrationSchema = z.object({
 });
 
 // Schemas for validation
-export const insertProfileSchema = createInsertSchema(profiles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertProfileSchema = z.object({
+  userId: z.string(),
+  age: z.number().min(18).max(100),
+  gender: z.string(),
+  location: z.string(),
+  profession: z.string(),
+  professionOther: z.string().optional(),
+  bio: z.string().optional(),
+  education: z.string().optional(),
+  educationOther: z.string().optional(),
+  educationSpecification: z.string().optional(),
+  educationSpecificationOther: z.string().optional(),
+  relationshipStatus: z.string().optional(),
+  religion: z.string().optional(),
+  caste: z.string().optional(),
+  subCaste: z.string().optional(),
+  motherTongue: z.string().optional(),
+  smoking: z.string().optional(),
+  drinking: z.string().optional(),
+  lifestyle: z.string().optional(),
+  hobbies: z.string().optional(),
+  verified: z.boolean().optional(),
+  kidsPreference: z.string().optional(),
 });
 
 export const insertLikeSchema = createInsertSchema(likes).omit({

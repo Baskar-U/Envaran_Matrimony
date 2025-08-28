@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./localStorage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProfileSchema, insertLikeSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
@@ -12,7 +12,7 @@ async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id || req.user.claims?.sub;
       const user = await storage.getUser(userId);
       const profile = await storage.getProfile(userId);
       res.json({ ...user, profile });
@@ -41,26 +41,34 @@ async function registerRoutes(app: Express): Promise<Server> {
   // Profile routes
   app.post('/api/profiles', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id || req.user.claims?.sub;
+      console.log('Received profile data:', req.body);
+      console.log('User ID:', userId);
+      
       const profileData = insertProfileSchema.parse({ ...req.body, userId });
+      console.log('Parsed profile data:', profileData);
       
       const existingProfile = await storage.getProfile(userId);
       if (existingProfile) {
+        console.log('Updating existing profile');
         const updatedProfile = await storage.updateProfile(userId, profileData);
+        console.log('Profile updated:', updatedProfile);
         res.json(updatedProfile);
       } else {
+        console.log('Creating new profile');
         const profile = await storage.createProfile(profileData);
+        console.log('Profile created:', profile);
         res.json(profile);
       }
     } catch (error) {
       console.error("Error creating/updating profile:", error);
-      res.status(400).json({ message: "Failed to create/update profile" });
+      res.status(400).json({ message: "Failed to create/update profile", error: error.message });
     }
   });
 
   app.get('/api/profiles', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id || req.user.claims?.sub;
       const profiles = await storage.getProfiles(userId);
       res.json(profiles);
     } catch (error) {
@@ -84,25 +92,16 @@ async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Registration endpoint
+  // Firebase authentication is now used instead of server-side registration
+  // Disabled old register endpoint to avoid conflicts
   app.post('/api/register', async (req, res) => {
-    try {
-      const userData = req.body;
-      // Hash password before storing (simplified for demo)
-      userData.password = `hashed_${userData.password}`;
-      
-      const user = await storage.createUser(userData);
-      res.json({ message: "User registered successfully", userId: user.id });
-    } catch (error) {
-      console.error("Error registering user:", error);
-      res.status(400).json({ message: "Failed to register user" });
-    }
+    res.status(404).json({ message: "Use Firebase authentication instead" });
   });
 
   // Like routes
   app.post('/api/likes', isAuthenticated, async (req: any, res) => {
     try {
-      const likerId = req.user.claims.sub;
+      const likerId = req.user.id || req.user.claims?.sub;
       const { likedId } = req.body;
       
       const existingLike = await storage.getLike(likerId, likedId);
@@ -128,7 +127,7 @@ async function registerRoutes(app: Express): Promise<Server> {
   // Match routes
   app.get('/api/matches', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id || req.user.claims?.sub;
       const matches = await storage.getUserMatches(userId);
       res.json(matches);
     } catch (error) {
@@ -140,7 +139,7 @@ async function registerRoutes(app: Express): Promise<Server> {
   // Message routes
   app.post('/api/messages', isAuthenticated, async (req: any, res) => {
     try {
-      const senderId = req.user.claims.sub;
+      const senderId = req.user.id || req.user.claims?.sub;
       const messageData = insertMessageSchema.parse({ ...req.body, senderId });
       
       const message = await storage.createMessage(messageData);

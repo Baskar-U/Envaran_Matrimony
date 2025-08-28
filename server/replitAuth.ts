@@ -1,69 +1,50 @@
-import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
-
 import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import memoize from "memoizee";
-import connectPg from "connect-pg-simple";
-import { storage } from "./storage";
+import MemoryStore from "memorystore";
+import { storage } from "./localStorage";
 
-if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
-}
-
-const getOidcConfig = memoize(
-  async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
-  },
-  { maxAge: 3600 * 1000 }
-);
+// For development, we'll use a simple local authentication
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
+  const MemoryStoreSession = MemoryStore(session);
+  const sessionStore = new MemoryStoreSession({
+    checkPeriod: 86400000, // prune expired entries every 24h
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: false, // Set to false for development
       maxAge: sessionTtl,
     },
   });
 }
 
-function updateUserSession(
-  user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
-) {
-  user.claims = tokens.claims();
-  user.access_token = tokens.access_token;
-  user.refresh_token = tokens.refresh_token;
-  user.expires_at = user.claims?.exp;
-}
-
-async function upsertUser(
-  claims: any,
-) {
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
+async function createTestUser() {
+  const testUserId = 'test-user-1';
+  const existingUser = await storage.getUser(testUserId);
+  if (!existingUser) {
+    await storage.upsertUser({
+      id: testUserId,
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      profileImageUrl: '',
+      fullName: 'Test User',
+      gender: 'male',
+      dateOfBirth: '01/01/1990',
+      religion: 'Other',
+      mobileNo: '+919999999999',
+      password: 'defaultPassword123!',
+    });
+  }
+  return testUserId;
 }
 
 export async function setupAuth(app: Express) {
@@ -72,86 +53,53 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const config = await getOidcConfig();
+  // Simple local strategy for development
+  passport.serializeUser((user: any, cb) => cb(null, user));
+  passport.deserializeUser((user: any, cb) => cb(null, user));
 
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
-  };
-
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
-      },
-      verify,
-    );
-    passport.use(strategy);
+  // Create a test user for development
+  if (isDevelopment) {
+    await createTestUser();
   }
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
-
-  app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
-  });
-
-  app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
+  // Firebase authentication is now used instead of server-side auth
+  // Disabled old login endpoint to avoid conflicts
+  app.get("/api/login", (req, res) => {
+    res.status(404).json({ message: "Use Firebase authentication instead" });
   });
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+      res.json({ message: "Logged out successfully" });
     });
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+  if (isDevelopment) {
+    // For development, always allow access
+    if (!req.user) {
+      // Auto-login for development
+      const user = {
+        id: 'test-user-1',
+        email: 'test@example.com',
+        name: 'Test User',
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+      };
+      req.login(user, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Authentication failed" });
+        }
+        next();
+      });
+    } else {
+      next();
+    }
+  } else {
+    // Production authentication logic would go here
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    next();
   }
 };
