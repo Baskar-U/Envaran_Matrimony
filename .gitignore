@@ -109,3 +109,38 @@ temp/
 
 # Replit specific
 .replit
+
+# Temporary setup and test files
+test-*.js
+debug-*.js
+fix-*.js
+setup-*.js
+create-*.js
+add-*.js
+upgrade-*.js
+check-*.js
+register-*.js
+bypass-*.js
+refresh-*.js
+quick-*.js
+simple-*.js
+auto-*.js
+firebase-setup*.js
+corrected-*.js
+temp-*.js
+working-*.js
+browser-*.js
+ultra-*.js
+
+# Documentation files
+QUICK_SETUP_GUIDE.md
+LIKE_FUNCTIONALITY_SETUP.md
+replit.md
+firebase-security-rules.txt
+
+# Setup scripts (remove after use)
+setup-github.sh
+cleanup-repo.sh
+
+# Attached assets
+attached_assets/
